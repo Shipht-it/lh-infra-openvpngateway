@@ -1,26 +1,21 @@
-# Use an official lightweight Alpine image as a parent image
+# Use the Alpine Linux base image
 FROM alpine:latest
 
-# Install OpenVPN and easy-rsa for certificate management
-RUN apk add --no-cache openvpn easy-rsa
+# Install OpenVPN and the OpenVPN Azure AD Authentication Plugin
+RUN apk add --no-cache openvpn openvpn-auth-azure-ad
 
-# Set up easy-rsa directory to generate certs
-RUN mkdir /etc/openvpn/easy-rsa && ln -s /usr/share/easy-rsa/* /etc/openvpn/easy-rsa
-WORKDIR /etc/openvpn/easy-rsa
-RUN ./easyrsa init-pki && \
-    ./easyrsa build-ca nopass && \
-    ./easyrsa gen-req server nopass && \
-    ./easyrsa sign-req server ca
-
-# Configuration files and server setup
+# Copy the OpenVPN server configuration file to the container
 COPY server.conf /etc/openvpn
+
+# Copy the entrypoint script to the container
 COPY entrypoint.sh /entrypoint.sh
 
-# Make entrypoint executable
+# Make the entrypoint script executable
 RUN chmod +x /entrypoint.sh
 
-# OpenVPN and management ports
+# Expose the OpenVPN port (1194/UDP) and SSH port (22/TCP)
 EXPOSE 1194/udp
-EXPOSE 943/tcp
+EXPOSE 22/tcp
 
+# Set the entrypoint script as the container's entrypoint
 ENTRYPOINT ["/entrypoint.sh"]

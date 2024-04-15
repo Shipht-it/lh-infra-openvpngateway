@@ -17,7 +17,7 @@ RUN wget https://github.com/jkroepke/openvpn-auth-oauth2/archive/refs/tags/v1.0.
     rm -rf openvpn-auth-oauth2-1.0.0 v1.0.0.tar.gz
 
 # Clean up build dependencies
-RUN apk del .build-deps
+RUN apk del --no-cache .build-deps
 
 # Copy the OpenVPN server configuration file to the container
 COPY server.conf /etc/openvpn/
